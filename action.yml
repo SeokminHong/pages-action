@@ -1,11 +1,22 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'pages-action'
+description: 'Deploy Cloudflare Pages with GitHub Actions'
+author: 'Seokmin Hong'
 inputs:
-  milliseconds: # change this
+  accountId:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Cloudflare account ID'
+  projectName:
+    required: true
+    description: 'Name of the project'
+  email:
+    required: true
+    description: User's email
+  authKey:
+    required: true
+    description: API key for user
+  interval:
+    required: false
+    description: Interval for polling (ms). Default is 3000
 runs:
-  using: 'node12'
+  using: 'node14'
   main: 'dist/index.js'
