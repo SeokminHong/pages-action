@@ -62,7 +62,18 @@ function run() {
                 throw Error(`Failed to create deployment!: ${deployment.messages}`);
             }
             const tid = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                const info = yield (0, got_1.default)(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`).json();
+                let info;
+                try {
+                    info = yield (0, got_1.default)(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`, {
+                        headers: {
+                            'X-Auth-Email': email,
+                            'X-Auth-Key': authKey
+                        }
+                    }).json();
+                }
+                catch (e) {
+                    throw Error(`Failed to fetch deployment status!: ${e}`);
+                }
                 if (!info.success) {
                     throw Error(`Failed to fetch deployment status!: ${info.messages}`);
                 }

@@ -48,9 +48,20 @@ async function run(): Promise<void> {
     }
 
     const tid = setInterval(async () => {
-      const info: Response = await got(
-        `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`
-      ).json()
+      let info: Response
+      try {
+        info = await got(
+          `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`,
+          {
+            headers: {
+              'X-Auth-Email': email,
+              'X-Auth-Key': authKey
+            }
+          }
+        ).json()
+      } catch (e) {
+        throw Error(`Failed to fetch deployment status!: ${e}`)
+      }
 
       if (!info.success) {
         throw Error(`Failed to fetch deployment status!: ${info.messages}`)
