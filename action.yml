@@ -18,5 +18,5 @@ inputs:
     required: false
     description: Interval for polling (ms). Default is 3000
 runs:
-  using: 'node14'
+  using: 'node12'
   main: 'dist/index.js'
