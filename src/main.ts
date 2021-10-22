@@ -47,9 +47,8 @@ async function run(): Promise<void> {
     core.info(`Build starts at ${new Date().toTimeString()}`)
 
     const tid = setInterval(async () => {
-      let info: Response
       try {
-        info = await got(
+        const res: Response = await got(
           `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`,
           {
             headers: {
@@ -58,35 +57,35 @@ async function run(): Promise<void> {
             }
           }
         ).json()
-      } catch (e) {
-        throw Error(`Failed to fetch deployment status!: ${e}`)
-      }
 
-      if (!info.success) {
-        throw Error(`Failed to fetch deployment status!: ${info.messages}`)
-      }
-      core.info(`Get status at ${new Date().toTimeString()}`)
-      core.info(
-        info.result.stages
-          .map(({name, status}) => `  ${name}: ${status}`)
-          .join('\n')
-      )
-
-      for (const stage of info.result.stages) {
-        if (stage.status === 'canceled' || stage.status === 'failure') {
-          throw Error(`Failed to deployment: ${info.messages}`)
+        if (!res.success) {
+          throw Error(`Failed to fetch deployment status!: ${res.messages}`)
         }
-        // Running
-        if (stage.status !== 'success') {
-          return
-        }
-      }
+        core.startGroup(`Get status at ${new Date().toTimeString()}`)
+        core.info(
+          res.result.stages
+            .map(({name, status}) => `  ${name}: ${status}`)
+            .join('\n')
+        )
+        core.endGroup()
 
+        for (const stage of res.result.stages) {
+          if (stage.status === 'canceled' || stage.status === 'failure') {
+            throw Error(`Failed to deployment: ${res.messages}`)
+          }
+          // Running
+          if (stage.status !== 'success') {
+            return
+          }
+        }
+        core.info(`Build success! at ${new Date().toTimeString()}`)
+      } catch (error) {
+        core.setFailed(error instanceof Error ? error.message : 'Unknown error')
+      }
       clearInterval(tid)
-      core.info(`Build success! at ${new Date().toTimeString()}`)
     }, interval)
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    core.setFailed(error instanceof Error ? error.message : 'Unknown error')
   }
 }
 

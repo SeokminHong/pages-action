@@ -61,39 +61,40 @@ function run() {
             }
             core.info(`Build starts at ${new Date().toTimeString()}`);
             const tid = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                let info;
                 try {
-                    info = yield (0, got_1.default)(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`, {
+                    const res = yield (0, got_1.default)(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`, {
                         headers: {
                             'X-Auth-Email': email,
                             'X-Auth-Key': authKey
                         }
                     }).json();
-                }
-                catch (e) {
-                    throw Error(`Failed to fetch deployment status!: ${e}`);
-                }
-                if (!info.success) {
-                    throw Error(`Failed to fetch deployment status!: ${info.messages}`);
-                }
-                core.info(`Get status at ${new Date().toTimeString()}`);
-                core.info(info.result.stages.map(({ name, status }) => `  ${name}: ${status}`).join('\n'));
-                for (const stage of info.result.stages) {
-                    if (stage.status === 'canceled' || stage.status === 'failure') {
-                        throw Error(`Failed to deployment: ${info.messages}`);
+                    if (!res.success) {
+                        throw Error(`Failed to fetch deployment status!: ${res.messages}`);
                     }
-                    // Running
-                    if (stage.status !== 'success') {
-                        return;
+                    core.startGroup(`Get status at ${new Date().toTimeString()}`);
+                    core.info(res.result.stages
+                        .map(({ name, status }) => `  ${name}: ${status}`)
+                        .join('\n'));
+                    core.endGroup();
+                    for (const stage of res.result.stages) {
+                        if (stage.status === 'canceled' || stage.status === 'failure') {
+                            throw Error(`Failed to deployment: ${res.messages}`);
+                        }
+                        // Running
+                        if (stage.status !== 'success') {
+                            return;
+                        }
                     }
+                    core.info(`Build success! at ${new Date().toTimeString()}`);
+                }
+                catch (error) {
+                    core.setFailed(error instanceof Error ? error.message : 'Unknown error');
                 }
                 clearInterval(tid);
-                core.info(`Build success! at ${new Date().toTimeString()}`);
             }), interval);
         }
         catch (error) {
-            if (error instanceof Error)
-                core.setFailed(error.message);
+            core.setFailed(error instanceof Error ? error.message : 'Unknown error');
         }
     });
 }
