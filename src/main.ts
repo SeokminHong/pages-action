@@ -29,7 +29,6 @@ async function run(): Promise<void> {
     const authKey: string = core.getInput('authKey')
     const interval: number = +core.getInput('interval') || 3000
 
-    core.debug(new Date().toTimeString())
     const deployment: Response = await got
       .post(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`,
@@ -42,10 +41,10 @@ async function run(): Promise<void> {
       )
       .json()
 
-    core.debug(new Date().toTimeString())
     if (!deployment.success) {
       throw Error(`Failed to create deployment!: ${deployment.messages}`)
     }
+    core.info(`Build starts at ${new Date().toTimeString()}`)
 
     const tid = setInterval(async () => {
       let info: Response
@@ -66,6 +65,12 @@ async function run(): Promise<void> {
       if (!info.success) {
         throw Error(`Failed to fetch deployment status!: ${info.messages}`)
       }
+      core.info(`Get status at ${new Date().toTimeString()}`)
+      core.info(
+        info.result.stages
+          .map(({name, status}) => `  ${name}: ${status}`)
+          .join('\n')
+      )
 
       for (const stage of info.result.stages) {
         if (stage.status === 'canceled' || stage.status === 'failure') {
@@ -78,8 +83,7 @@ async function run(): Promise<void> {
       }
 
       clearInterval(tid)
-      core.debug(`Build success!`)
-      core.debug(new Date().toTimeString())
+      core.info(`Build success! at ${new Date().toTimeString()}`)
     }, interval)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

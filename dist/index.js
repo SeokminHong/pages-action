@@ -48,7 +48,6 @@ function run() {
             const email = core.getInput('email');
             const authKey = core.getInput('authKey');
             const interval = +core.getInput('interval') || 3000;
-            core.debug(new Date().toTimeString());
             const deployment = yield got_1.default
                 .post(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`, {
                 headers: {
@@ -57,10 +56,10 @@ function run() {
                 }
             })
                 .json();
-            core.debug(new Date().toTimeString());
             if (!deployment.success) {
                 throw Error(`Failed to create deployment!: ${deployment.messages}`);
             }
+            core.info(`Build starts at ${new Date().toTimeString()}`);
             const tid = setInterval(() => __awaiter(this, void 0, void 0, function* () {
                 let info;
                 try {
@@ -77,6 +76,8 @@ function run() {
                 if (!info.success) {
                     throw Error(`Failed to fetch deployment status!: ${info.messages}`);
                 }
+                core.info(`Get status at ${new Date().toTimeString()}`);
+                core.info(info.result.stages.map(({ name, status }) => `  ${name}: ${status}`).join('\n'));
                 for (const stage of info.result.stages) {
                     if (stage.status === 'canceled' || stage.status === 'failure') {
                         throw Error(`Failed to deployment: ${info.messages}`);
@@ -87,8 +88,7 @@ function run() {
                     }
                 }
                 clearInterval(tid);
-                core.debug(`Build success!`);
-                core.debug(new Date().toTimeString());
+                core.info(`Build success! at ${new Date().toTimeString()}`);
             }), interval);
         }
         catch (error) {
