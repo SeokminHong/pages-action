@@ -38,6 +38,7 @@ jobs:
           projectName: {{ page_name }}
           email: ${{ secrets.CLOUDFLARE_EMAIL }}
           authKey: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
+          interval: {{ (Optional) Interval for polling (ms). Default is 3000 }}
 ```
 
 ## Limitations
