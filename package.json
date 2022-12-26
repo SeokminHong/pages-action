@@ -28,7 +28,7 @@
     "got": "^11.8.2"
   },
   "devDependencies": {
-    "@types/node": "^16.11.1",
+    "@types/node": "^18.11.18",
     "@typescript-eslint/parser": "^5.1.0",
     "@vercel/ncc": "^0.31.1",
     "eslint": "^7.32.0",
