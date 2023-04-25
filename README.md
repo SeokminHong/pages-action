@@ -12,6 +12,13 @@ Cloudflare Pages' automatic git deployments are really powerful and easy to use.
 
 This action request Cloudflare Pages to build the main branch and poll the response until all steps are finished. It provides a greater experience than simply calling deploy hooks because if you just call the deploy hooks, you cannot notice whether the build fails or not.
 
+## Inputs
+
+- `accountId` (required): Cloudflare Account ID. See: https://developers.cloudflare.com/fundamentals/get-started/basic-tasks/find-account-and-zone-ids/
+- `projectName` (required): Name of the Pages project.
+- `token` (required): Authorization token of Cloudflare.
+- `interval` (optional): Interval (ms) for polling. Default is `3000`.
+
 ## Usage
 
 ```yaml
@@ -32,13 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy pages
-        uses: SeokminHong/pages-action@v0.4.1
+        uses: SeokminHong/pages-action@v0.5
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: {{ page_name }}
-          email: ${{ secrets.CLOUDFLARE_EMAIL }}
-          authKey: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
-          interval: {{ (Optional) Interval for polling (ms). Default is 3000 }}
+          token: ${{ secrets.CLOUDFLARE_TOKEN }}
 ```
 
 ## Limitations
