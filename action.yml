@@ -8,15 +8,12 @@ inputs:
   projectName:
     required: true
     description: 'Name of the project'
-  email:
+  token:
     required: true
-    description: User's email
-  authKey:
-    required: true
-    description: API key for user
+    description: 'Auth token'
   interval:
     required: false
     description: Interval for polling (ms). Default is 3000
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'

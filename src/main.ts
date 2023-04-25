@@ -25,8 +25,7 @@ async function run(): Promise<void> {
   try {
     const accountId: string = core.getInput('accountId')
     const projectName: string = core.getInput('projectName')
-    const email: string = core.getInput('email')
-    const authKey: string = core.getInput('authKey')
+    const token: string = core.getInput('token')
     const interval: number = +core.getInput('interval') || 3000
 
     const deployment: Response = await got
@@ -34,8 +33,7 @@ async function run(): Promise<void> {
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`,
         {
           headers: {
-            'X-Auth-Email': email,
-            'X-Auth-Key': authKey
+            Authorization: `Bearer ${token}`
           }
         }
       )
@@ -52,8 +50,7 @@ async function run(): Promise<void> {
           `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments/${deployment.result.id}`,
           {
             headers: {
-              'X-Auth-Email': email,
-              'X-Auth-Key': authKey
+              Authorization: `Bearer ${token}`
             }
           }
         ).json()
