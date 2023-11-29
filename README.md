@@ -18,6 +18,7 @@ This action request Cloudflare Pages to build the main branch and poll the respo
 - `projectName` (required): Name of the Pages project.
 - `token` (required): Authorization token of Cloudflare.
 - `interval` (optional): Interval (ms) for polling. Default is `3000`.
+- `branch` (optional): Name of a branch to deploy. If it isn't provided, the production branch will be chosen.
 
 ## Usage
 
@@ -39,13 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy pages
-        uses: SeokminHong/pages-action@v0.5
+        uses: SeokminHong/pages-action@v0.6
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: {{ page_name }}
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
+          branch: dev
 ```
-
-## Limitations
-
-Cloudflare v4 API only provides to deploy default branch, `main`. So, you can't use other deployments like pull request previews, development branches, and others. I'll add an option to deploy using the deploy hooks to deploy other branches, but it still has limits to deploying pull request previews.
