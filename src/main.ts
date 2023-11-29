@@ -27,14 +27,18 @@ async function run(): Promise<void> {
     const projectName: string = core.getInput('projectName', {required: true})
     const token: string = core.getInput('token', {required: true})
     const interval: number = +core.getInput('interval') || 3000
+    const branch: string = core.getInput('branch')
+    const body = branch && JSON.stringify({branch})
 
     const deployment: Response = await got
       .post(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body
         }
       )
       .json()
