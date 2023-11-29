@@ -554,7 +554,7 @@ class OidcClient {
                 .catch(error => {
                 throw new Error(`Failed to get ID Token. \n 
         Error Code : ${error.statusCode}\n 
-        Error Message: ${error.result.message}`);
+        Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
             if (!id_token) {
@@ -7488,8 +7488,6 @@ const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(i
 const external_node_buffer_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:buffer");
 ;// CONCATENATED MODULE: external "node:stream"
 const external_node_stream_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:stream");
-;// CONCATENATED MODULE: external "node:url"
-const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 ;// CONCATENATED MODULE: external "node:http"
 const external_node_http_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:http");
 // EXTERNAL MODULE: external "events"
@@ -7606,6 +7604,8 @@ const timer = (request) => {
 };
 /* harmony default export */ const dist_source = (timer);
 
+;// CONCATENATED MODULE: external "node:url"
+const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 ;// CONCATENATED MODULE: external "node:crypto"
 const external_node_crypto_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:crypto");
 ;// CONCATENATED MODULE: ./node_modules/normalize-url/index.js
@@ -8689,13 +8689,13 @@ function timedOut(request, delays, options) {
             throw error;
         }
     });
-    if (typeof delays.request !== 'undefined') {
+    if (delays.request !== undefined) {
         const cancelTimeout = addTimeout(delays.request, timeoutHandler, 'request');
         once(request, 'response', (response) => {
             once(response, 'end', cancelTimeout);
         });
     }
-    if (typeof delays.socket !== 'undefined') {
+    if (delays.socket !== undefined) {
         const { socket } = delays;
         const socketTimeoutHandler = () => {
             timeoutHandler(socket, 'socket');
@@ -8708,17 +8708,17 @@ function timedOut(request, delays, options) {
             request.removeListener('timeout', socketTimeoutHandler);
         });
     }
-    const hasLookup = typeof delays.lookup !== 'undefined';
-    const hasConnect = typeof delays.connect !== 'undefined';
-    const hasSecureConnect = typeof delays.secureConnect !== 'undefined';
-    const hasSend = typeof delays.send !== 'undefined';
+    const hasLookup = delays.lookup !== undefined;
+    const hasConnect = delays.connect !== undefined;
+    const hasSecureConnect = delays.secureConnect !== undefined;
+    const hasSend = delays.send !== undefined;
     if (hasLookup || hasConnect || hasSecureConnect || hasSend) {
         once(request, 'socket', (socket) => {
             const { socketPath } = request;
             /* istanbul ignore next: hard to test */
             if (socket.connecting) {
                 const hasPath = Boolean(socketPath ?? external_node_net_namespaceObject.isIP(hostname ?? host ?? '') !== 0);
-                if (hasLookup && !hasPath && typeof socket.address().address === 'undefined') {
+                if (hasLookup && !hasPath && socket.address().address === undefined) {
                     const cancelTimeout = addTimeout(delays.lookup, timeoutHandler, 'lookup');
                     once(socket, 'lookup', cancelTimeout);
                 }
@@ -8756,13 +8756,13 @@ function timedOut(request, delays, options) {
             }
         });
     }
-    if (typeof delays.response !== 'undefined') {
+    if (delays.response !== undefined) {
         once(request, 'upload-complete', () => {
             const cancelTimeout = addTimeout(delays.response, timeoutHandler, 'response');
             once(request, 'response', cancelTimeout);
         });
     }
-    if (typeof delays.read !== 'undefined') {
+    if (delays.read !== undefined) {
         once(request, 'response', (response) => {
             const cancelTimeout = addTimeout(delays.read, timeoutHandler, 'read');
             once(response, 'end', cancelTimeout);
@@ -9363,7 +9363,6 @@ function parseLinkHeader(link) {
 
 
 
-
 // DO NOT use destructuring for `https.request` and `http.request` as it's not compatible with `nock`.
 
 
@@ -9528,7 +9527,7 @@ const defaultInternals = {
             const next = parsed.find(entry => entry.parameters.rel === 'next' || entry.parameters.rel === '"next"');
             if (next) {
                 return {
-                    url: new external_node_url_namespaceObject.URL(next.reference, response.url),
+                    url: new URL(next.reference, response.url),
                 };
             }
             return false;
@@ -9543,7 +9542,7 @@ const defaultInternals = {
     setHost: true,
     maxHeaderSize: undefined,
     signal: undefined,
-    enableUnixSockets: true,
+    enableUnixSockets: false,
 };
 const cloneInternals = (internals) => {
     const { hooks, retry } = internals;
@@ -9569,7 +9568,7 @@ const cloneInternals = (internals) => {
             beforeRetry: [...hooks.beforeRetry],
             afterResponse: [...hooks.afterResponse],
         },
-        searchParams: internals.searchParams ? new external_node_url_namespaceObject.URLSearchParams(internals.searchParams) : undefined,
+        searchParams: internals.searchParams ? new URLSearchParams(internals.searchParams) : undefined,
         pagination: { ...internals.pagination },
     };
     if (result.url !== undefined) {
@@ -9770,7 +9769,12 @@ class Options {
                     throw new Error(`Unexpected option: ${key}`);
                 }
                 // @ts-expect-error Type 'unknown' is not assignable to type 'never'.
-                this[key] = options[key];
+                const value = options[key];
+                if (value === undefined) {
+                    continue;
+                }
+                // @ts-expect-error Type 'unknown' is not assignable to type 'never'.
+                this[key] = value;
                 push = true;
             }
             if (push) {
@@ -10051,7 +10055,7 @@ class Options {
             throw new Error('`url` must not start with a slash');
         }
         const urlString = `${this.prefixUrl}${value.toString()}`;
-        const url = new external_node_url_namespaceObject.URL(urlString);
+        const url = new URL(urlString);
         this._internals.url = url;
         if (url.protocol === 'unix:') {
             url.href = `http://unix${url.pathname}${url.search}`;
@@ -10126,8 +10130,6 @@ class Options {
     /**
     You can abort the `request` using [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
 
-    *Requires Node.js 16 or later.*
-
     @example
     ```
     import got from 'got';
@@ -10143,11 +10145,9 @@ class Options {
     }, 100);
     ```
     */
-    // TODO: Replace `any` with `AbortSignal` when targeting Node 16.
     get signal() {
         return this._internals.signal;
     }
-    // TODO: Replace `any` with `AbortSignal` when targeting Node 16.
     set signal(value) {
         assert.object(value);
         this._internals.signal = value;
@@ -10188,7 +10188,7 @@ class Options {
             return this._internals.url.searchParams;
         }
         if (this._internals.searchParams === undefined) {
-            this._internals.searchParams = new external_node_url_namespaceObject.URLSearchParams();
+            this._internals.searchParams = new URLSearchParams();
         }
         return this._internals.searchParams;
     }
@@ -10205,14 +10205,14 @@ class Options {
         const searchParameters = this.searchParams;
         let updated;
         if (dist.string(value)) {
-            updated = new external_node_url_namespaceObject.URLSearchParams(value);
+            updated = new URLSearchParams(value);
         }
-        else if (value instanceof external_node_url_namespaceObject.URLSearchParams) {
+        else if (value instanceof URLSearchParams) {
             updated = value;
         }
         else {
             validateSearchParameters(value);
-            updated = new external_node_url_namespaceObject.URLSearchParams();
+            updated = new URLSearchParams();
             // eslint-disable-next-line guard-for-in
             for (const key in value) {
                 const entry = value[key];
@@ -11090,7 +11090,7 @@ function isUnixSocketURL(url) {
 
 
 
-
+const { buffer: getStreamAsBuffer } = get_stream;
 const supportsBrotli = dist.string(external_node_process_namespaceObject.versions.brotli);
 const methodsWithoutBody = new Set(['GET', 'HEAD']);
 const cacheableStore = new WeakableMap();
@@ -11280,8 +11280,8 @@ class Request extends external_node_stream_namespaceObject.Duplex {
         this.redirectUrls = [];
         this.retryCount = 0;
         this._stopRetry = core_noop;
-        this.on('pipe', source => {
-            if (source.headers) {
+        this.on('pipe', (source) => {
+            if (source?.headers) {
                 Object.assign(this.options.headers, source.headers);
             }
         });
@@ -11337,7 +11337,7 @@ class Request extends external_node_stream_namespaceObject.Duplex {
             else {
                 this.options.signal.addEventListener('abort', abort);
                 this._removeListeners = () => {
-                    this.options.signal.removeEventListener('abort', abort);
+                    this.options.signal?.removeEventListener('abort', abort);
                 };
             }
         }
@@ -11603,7 +11603,7 @@ class Request extends external_node_stream_namespaceObject.Duplex {
                 }
                 const { form } = options;
                 options.form = undefined;
-                options.body = (new external_node_url_namespaceObject.URLSearchParams(form)).toString();
+                options.body = (new URLSearchParams(form)).toString();
             }
             else {
                 if (noContentType) {
@@ -11726,7 +11726,7 @@ class Request extends external_node_stream_namespaceObject.Duplex {
             try {
                 // We need this in order to support UTF-8
                 const redirectBuffer = external_node_buffer_namespaceObject.Buffer.from(response.headers.location, 'binary').toString();
-                const redirectUrl = new external_node_url_namespaceObject.URL(redirectBuffer, url);
+                const redirectUrl = new URL(redirectBuffer, url);
                 if (!isUnixSocketURL(url) && isUnixSocketURL(redirectUrl)) {
                     this._beforeError(new RequestError('Cannot redirect to UNIX socket', {}, this));
                     return;
@@ -11819,7 +11819,10 @@ class Request extends external_node_stream_namespaceObject.Duplex {
         }
         try {
             // Errors are emitted via the `error` event
-            const rawBody = await (0,get_stream.buffer)(from);
+            const rawBody = await getStreamAsBuffer(from);
+            // TODO: Switch to this:
+            // let rawBody = await from.toArray();
+            // rawBody = Buffer.concat(rawBody);
             // On retry Request is destroyed with no error, therefore the above will successfully resolve.
             // So in order to check if this was really successfull, we need to check if it has been properly ended.
             if (!this.isAborted) {
@@ -11913,7 +11916,6 @@ class Request extends external_node_stream_namespaceObject.Duplex {
                     // We only need to implement the error handler in order to support HTTP2 caching.
                     // The result will be a promise anyway.
                     // @ts-expect-error ignore
-                    // eslint-disable-next-line @typescript-eslint/promise-function-async
                     result.once = (event, handler) => {
                         if (event === 'error') {
                             (async () => {
@@ -12588,14 +12590,18 @@ const got = source_create(defaults);
 
 async function run() {
     try {
-        const accountId = core.getInput('accountId');
-        const projectName = core.getInput('projectName');
-        const token = core.getInput('token');
+        const accountId = core.getInput('accountId', { required: true });
+        const projectName = core.getInput('projectName', { required: true });
+        const token = core.getInput('token', { required: true });
         const interval = +core.getInput('interval') || 3000;
+        const branch = core.getInput('branch');
+        const body = branch && JSON.stringify({ branch });
         const deployment = await got_dist_source.post(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`, {
             headers: {
-                Authorization: `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body
         })
             .json();
         if (!deployment.success) {
