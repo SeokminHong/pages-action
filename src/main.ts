@@ -23,9 +23,9 @@ type Response = {
 
 async function run(): Promise<void> {
   try {
-    const accountId: string = core.getInput('accountId')
-    const projectName: string = core.getInput('projectName')
-    const token: string = core.getInput('token')
+    const accountId: string = core.getInput('accountId', {required: true})
+    const projectName: string = core.getInput('projectName', {required: true})
+    const token: string = core.getInput('token', {required: true})
     const interval: number = +core.getInput('interval') || 3000
 
     const deployment: Response = await got
